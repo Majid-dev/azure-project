@@ -1,0 +1,46 @@
+controller:
+  kind: DaemonSet  
+  extraContainers:  # Adding a sidecar container
+    - name: side-container
+      image: busybox  
+      command: ["sh", "-c", "tail -f /var/log/nginx/access.log"]  # Sample command for log monitoring
+      resources:
+        limits:
+          cpu: 0.2
+          memory: 256Mi
+        requests:
+          cpu: 0.1
+          memory: 128Mi
+      volumeMounts:
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+
+  extraVolumeMounts:  # Mount log volume to the NGINX controller
+    - name: nginx-logs
+      mountPath: /var/log/nginx
+
+  extraVolumes:  # Define a volume for NGINX logs
+    - name: nginx-logs
+      emptyDir: {}
+
+  config:
+    enable-modsecurity: "true"  # Enable ModSecurity
+    enable-owasp-modsecurity-crs: "true"  # Enable OWASP CRS rules
+    modsecurity-snippet: |
+      SecRuleEngine On  # Enable ModSecurity in blocking mode
+
+  # Enable WAF and set ModSecurity to blocking mode
+  modsecurity:
+    enable: true
+    enable-owasp-crs: true
+    owasp-crs:
+      modsecurity.conf: |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecResponseBodyAccess On
+        SecResponseBodyMimeType text/plain text/html text/xml
+        SecRequestBodyLimitAction Reject
+        SecRequestBodyLimit 13107200
+        SecRequestBodyNoFilesLimit 13107200
+        SecRequestBodyInMemoryLimit 131072
+        SecRequestBodyLimitAction Reject
