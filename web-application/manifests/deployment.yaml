@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  labels:
+    app: web-app
+spec:
+  replicas: 2  # 2 replicas
+  selector:
+    matchLabels:
+      app: web-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%  # 25% max surge for rolling update
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: web-app  # Add custom labels
+    spec:
+      containers:
+      - name: web-app-container
+        image: docker.akostage.ir/frontend/web-app:v1.1.0
+        imagePullPolicy: IfNotPresent  # Only fetch the image if not cached
+        ports:
+        - containerPort: 8888  # Custom port 8888
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+        securityContext:
+          runAsNonRoot: true  # Run container as non-root
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL  # Drop all capabilities for security
+      imagePullSecrets:
+      - name: regcred
+      securityContext:  # Apply security context to the entire pod
+        fsGroup: 101  # Set file system group to match nginx user

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app
+  namespace: default
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: majid.hopto.org
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: web-app-service
+                port:
+                  number: 80
+            path: /
+  # This section is only required if TLS is to be enabled for the Ingress
+  tls:
+    - hosts:
+      - majid.hopto.org
+      secretName: majid-hopto-org-tls
