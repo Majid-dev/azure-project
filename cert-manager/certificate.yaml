@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: majid-hopto-org
+  namespace: default
+spec:
+  secretName: majid-hopto-org-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+  dnsNames:
+  - 'majid.hopto.org'
