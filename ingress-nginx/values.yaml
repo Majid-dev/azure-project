@@ -28,6 +28,7 @@ controller:
     enable-owasp-modsecurity-crs: "true"  # Enable OWASP CRS rules
     modsecurity-snippet: |
       SecRuleEngine On  # Enable ModSecurity in blocking mode
+      SecRule REQUEST_URI "@beginsWith /.well-known/acme-challenge/" "id:999999,phase:1,nolog,allow,ctl:ruleEngine=Off"
 
   # Enable WAF and set ModSecurity to blocking mode
   modsecurity:
