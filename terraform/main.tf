@@ -1,55 +1,93 @@
-resource "azurerm_resource_group" "resource_group" {
-  name     = "my_resource_group"
-  location = "Sweden Central"
+# Create a resource group
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
 }
 
-resource "azurerm_network_security_group" "network_security_group" {
-  name                = "my-security-group"
-  location            = azurerm_resource_group.resource_group.location
-  resource_group_name = azurerm_resource_group.resource_group.name
+# Create a virtual network
+resource "azurerm_virtual_network" "vnet" {
+  name                = var.vnet_name
+  address_space       = [var.address_space]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+# Create a Network Security Group (NSG)
+resource "azurerm_network_security_group" "nsg" {
+  name                = var.nsg_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name                       = "kubernetes"
+    name                       = "Allow-HTTP"
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = "6443"
+    destination_port_range     = "80"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-}
 
-resource "azurerm_virtual_network" "virtual_network" {
-  name                = "my-network"
-  location            = azurerm_resource_group.resource_group.location
-  resource_group_name = azurerm_resource_group.resource_group.name
-  address_space       = ["10.0.0.0/16"]
-  dns_servers         = ["10.0.0.4", "10.0.0.5"]
-
-  subnet {
-    name             = "subnet1"
-    address_prefixes = ["10.0.1.0/24"]
-    security_group   = azurerm_network_security_group.network_security_group.id
+  security_rule {
+    name                       = "Allow-HTTPS"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 
-  tags = {
-    environment = "Production"
+    security_rule {
+    name                       = "Allow-Internet"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
+
 }
 
+# Create a subnet within the virtual network and associate NSG
+resource "azurerm_subnet" "subnet" {
+  name                 = var.subnet_name
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.address_prefixes]
+}
 
+# Associate the NSG with the Subnet
+resource "azurerm_subnet_network_security_group_association" "example" {
+  subnet_id                 = azurerm_subnet.subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+# Create a Kubernetes cluster with 1 node pool and 2 nodes
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "my-aks"
-  location            = azurerm_resource_group.resource_group.location
-  resource_group_name = azurerm_resource_group.resource_group.name
-  dns_prefix          = "my-aks"
+  name                = var.kubernetes_cluster_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  dns_prefix          = "myakscluster"
 
   default_node_pool {
-    name       = "default"
-    node_count = 2
-    vm_size    = "Standard_B2s"
+    name           = "default"
+    node_count     = var.node_count
+    vm_size        = var.node_vm_size
+    vnet_subnet_id = azurerm_subnet.subnet.id
+  }
+
+  network_profile {
+    network_plugin = var.network_profile_plugin
+    service_cidr   = var.network_profile_service_cidr
+    dns_service_ip = var.network_profile_dns_service_ip
   }
 
   identity {
@@ -57,17 +95,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   tags = {
-    environment = "Production"
+    Environment = "Development"
   }
 }
 
-output "client_certificate" {
-  value     = azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate
-  sensitive = true
-}
-
-output "kube_config" {
-  value = azurerm_kubernetes_cluster.aks.kube_config_raw
-
-  sensitive = true
-}
