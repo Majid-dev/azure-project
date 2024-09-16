@@ -2,11 +2,13 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: majid-hopto-org
-  namespace: default
 spec:
   secretName: majid-hopto-org-tls
+  renewBefore: 240h
+  duration: 2160h
+  commonName: majid.hopto.org
   issuerRef:
     name: letsencrypt-prod
-    kind: Issuer
+    kind: ClusterIssuer
   dnsNames:
-  - 'majid.hopto.org'
+  - majid.hopto.org

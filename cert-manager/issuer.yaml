@@ -1,14 +1,18 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
-  namespace: default
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
+    email: majid0karimi@gmail.com
     privateKeySecretRef:
-      name: letsencrypt-prod
+      name: letsencrypt-prod-key
     solvers:
     - http01:
         ingress:
-          class: traefik
+          class: nginx
+          podTemplate:
+            spec:
+              nodeSelector:
+                "kubernetes.io/os": linux
