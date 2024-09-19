@@ -25,7 +25,7 @@ This repository contains Terraform scripts and Kubernetes manifests to create a 
 - **Security:** Web Application Firewall (WAF) enabled with OWASP ModSecurity Core Rule Set (CRS) in blocking mode
 
 ### 4. Hardened Docker Image
-- A simple web page is containerized and pushed to Azure Container Registry (ACR).
+- A simple web page is containerized and pushed to private nexus registry `docker.akostage.ir`.
 - Docker image is built with security best practices (none-root user, minimized layers, etc.).
 
 ### 5. Kubernetes Deployment
@@ -33,7 +33,7 @@ This repository contains Terraform scripts and Kubernetes manifests to create a 
 - **Rolling update strategy:** 25% max surge
 - **Labels:** Applied to the deployment for better identification and management
 - **ImagePullPolicy:** Set to fetch the image only if not cached
-- **Docker Registry:** Using https://docker.akostage.ir as private docker registry
+ docker registry
 - **Security context:**
   - Running the container as a non-root user
   - Specifying a custom security context
