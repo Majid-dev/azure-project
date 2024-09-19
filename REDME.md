@@ -33,7 +33,7 @@ This repository contains Terraform scripts and Kubernetes manifests to create a 
 - **Rolling update strategy:** 25% max surge
 - **Labels:** Applied to the deployment for better identification and management
 - **ImagePullPolicy:** Set to fetch the image only if not cached
-- **Docker Registry:** Using https://docker.akostage.ir as private registry
+- **Docker Registry:** Using https://docker.akostage.ir as private docker registry
 - **Security context:**
   - Running the container as a non-root user
   - Specifying a custom security context
@@ -52,7 +52,7 @@ This repository contains Terraform scripts and Kubernetes manifests to create a 
 
 ### 1. SSL/TLS Configuration
 - **SSL Labs:** The application scores A+ on https://www.ssllabs.com with proper TLS configuration.
-  
+![Alt text](ssllab-report.png)
 ### 2. WAF (Web Application Firewall)
 - **ModSecurity test:**
   Using the following `curl` command, the WAF responds with a Forbidden response, blocking malicious requests:
