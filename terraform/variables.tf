@@ -12,6 +12,3 @@ variable "network_profile_plugin" {}
 variable "network_profile_service_cidr" {}
 variable "network_profile_dns_service_ip" {}
 variable "azure_subscription_id" {}
-variable "azure_client_id" {}
-variable "azure_client_secret" {}
-variable "azure_tenant_id" {}
