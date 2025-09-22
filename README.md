@@ -1,6 +1,6 @@
 # Azure Kubernetes Service (AKS) Infrastructure and Application Deployment
 
-
+![azure-project Icone](azure-project.png)
 
 ## 📝 Overview
 
