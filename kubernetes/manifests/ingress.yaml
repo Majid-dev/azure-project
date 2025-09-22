@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: majid.hopto.org
+    - host: <your_domain_address> # Put your domain address here for example test.mysite.com
       http:
         paths:
           - path: / 
@@ -22,5 +22,5 @@ spec:
   # This section is only required if TLS is to be enabled for the Ingress
   tls:
     - hosts:
-      - majid.hopto.org
+      - <your_domain_address> # Put your domain address here for example test.mysite.com
       secretName: majid-hopto-org-tls
