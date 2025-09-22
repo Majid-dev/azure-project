@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: majid-hopto-org
+spec:
+  secretName: majid-hopto-org-tls
+  renewBefore: 240h
+  duration: 2160h 
+  commonName: <your_domain_address> # Put your domain address here for example test.mysite.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - majid.hopto.org
